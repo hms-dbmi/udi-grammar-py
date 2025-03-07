@@ -1,2 +1,3 @@
 # udi-grammar-py
-Python code for generating udi-grammar specifications.
+
+Python code for generating Universal Discovery Interface (UDI) specifications.
