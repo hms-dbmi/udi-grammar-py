@@ -1,8 +1,5 @@
 from udi_grammar_py import Chart
 
-def test_sanity():
-    assert 1 == 1
-
 
 def test_chart_initialization():
     chart = Chart()
@@ -11,7 +8,7 @@ def test_chart_initialization():
 
 def test_chart_add_source():
     chart = Chart()
-    chart.source('test_name', 'test_source')
+    chart.source(source='test_source', name='test_name')
     assert chart._spec['source'] == [{'name': 'test_name', 'source': 'test_source'}]
 
 def test_chart_add_multiple_sources():
