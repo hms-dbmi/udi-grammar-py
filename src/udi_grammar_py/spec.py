@@ -1,21 +1,25 @@
 
 import json
-
+from typing import Union, List, Dict, Set
 PRETTY_INDENT = 4
 
 class Chart:
 
     def __init__(self):
-        self._spec = { 'source': [], 'representation': []}
+        self._spec = {}
 
     def source(self, name, source):
+        self._spec.setdefault('source', [])
         self._spec['source'].append({'name': name, 'source': source})
         return self
     
-    # def add_representation(self, name, representation):
-    #     self.spec['representation'].append({'name': name
+    def transformation(self):
+        transformation = Transformation()
+        self._spec['transformation'] = transformation
+        return transformation
 
-    def add_layer(self):
+    def layer(self):
+        self._spec.setdefault('representation', [])
         layer = Layer()
         self._spec['representation'].append(layer)
         return layer
@@ -23,7 +27,7 @@ class Chart:
     def to_json(self, pretty=False):
         # handle inner object serialization
         def custom_serialization(obj):
-            if isinstance(obj, Layer):
+            if isinstance(obj, Layer) or isinstance(obj, Transformation):
                 return obj.__json__()
             raise TypeError(f"Type {type(obj)} not serializable")
 
@@ -31,6 +35,65 @@ class Chart:
     
     def to_dict(self):
         return json.loads(self.to_json())
+
+class Transformation:
+    def __init__(self):
+        self._state = []
+
+    def groupby(self, field: Union[str, List[str]], **kwargs):
+        transform = {'groupby': field}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+
+    def binby(self, field: str, **kwargs):
+        binby_options = {'field': field}
+        transfer_kwargs( {'bins', 'nice', 'output'}, binby_options, kwargs)
+        transform = {'binby': binby_options}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+    
+    def rollup(self, rollup_options: Union[str, List[str]], **kwargs):
+        transform = {'rollup': rollup_options}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+    
+    def orderby(self, field: Union[str, List[str]], **kwargs):
+        transform = {'orderby': field}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+    
+    def join(self, on: Union[str, List[str]], **kwargs):
+        transform = {'join': {'on': on}}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+    
+    def kde(self, field: Union[str, List[str]], **kwargs):
+        kde_options = {'field': field}
+        transfer_kwargs( {'bandwidth', 'samples', 'output'}, kde_options, kwargs)
+        transform = {'kde': kde_options}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+    
+    def derive(self, derive_options: Union[str, List[str]], **kwargs):
+        transform = {'derive': derive_options}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+    
+    def filter(self, filter_expression: Union[str, Dict], **kwargs):
+        transform = {'filter': filter_expression}
+        transfer_kwargs( {'in', 'out'}, transform, kwargs)
+        self._state.append(transform)
+        return self
+
+    def __json__(self):
+        return self._state
 
 class Layer:
     def __init__(self):
@@ -42,15 +105,14 @@ class Layer:
 
     def map(self, encoding: str, **kwargs):
         new_mapping = { 'encoding': encoding }
-        if 'field' in kwargs:
-            new_mapping['field'] = kwargs['field']
-        if 'type' in kwargs:
-            new_mapping['type'] = kwargs['type']
-        if 'value' in kwargs:
-            new_mapping['value'] = kwargs['value']
+        transfer_kwargs({'field', 'type', 'value'}, new_mapping, kwargs)
         self._state['mapping'].append(new_mapping)
         return self
     
     def __json__(self):
         # Return a dictionary that can be serialized by json
         return self._state
+    
+
+def transfer_kwargs(valid_args: Set[str], state: Dict, kwargs):
+    return state.update({k: v for k, v in kwargs.items() if k in valid_args})
