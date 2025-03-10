@@ -18,16 +18,15 @@ class Chart:
         self._spec['transformation'] = transformation
         return transformation
 
-    def layer(self):
-        self._spec.setdefault('representation', [])
-        layer = Layer()
-        self._spec['representation'].append(layer)
-        return layer
+    def representation(self):
+        representation = Representation()
+        self._spec['representation'] = representation
+        return representation
 
     def to_json(self, pretty=False):
         # handle inner object serialization
         def custom_serialization(obj):
-            if isinstance(obj, Layer) or isinstance(obj, Transformation):
+            if isinstance(obj, (Representation, Transformation, Layer)):
                 return obj.__json__()
             raise TypeError(f"Type {type(obj)} not serializable")
 
@@ -95,6 +94,24 @@ class Transformation:
     def __json__(self):
         return self._state
 
+
+class Representation:
+    def __init__(self):
+        self._state = []
+
+    def mark(self, mark: str):
+        self._current_layer = Layer()
+        self._current_layer.mark(mark)
+        self._state.append(self._current_layer)
+        return self
+
+    def map(self, encoding: str, **kwargs):
+        self._current_layer.map(encoding, **kwargs)
+        return self
+    
+    def __json__(self):
+        return unwrap_single_element(self._state)
+
 class Layer:
     def __init__(self):
         self._state = { 'mark': None, 'mapping': [] }
@@ -110,9 +127,14 @@ class Layer:
         return self
     
     def __json__(self):
-        # Return a dictionary that can be serialized by json
-        return self._state
+        # duplicate state
+        copy = self._state.copy()
+        copy['mapping'] = unwrap_single_element(copy['mapping'])
+        return copy
     
 
 def transfer_kwargs(valid_args: Set[str], state: Dict, kwargs):
     return state.update({k: v for k, v in kwargs.items() if k in valid_args})
+
+def unwrap_single_element(lst):
+    return lst[0] if len(lst) == 1 else lst

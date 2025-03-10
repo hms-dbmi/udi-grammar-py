@@ -29,21 +29,19 @@ def test_chart_to_dict():
 def test_scatterplot():
     chart = Chart()
     chart.source('donors', './data/donors.csv') \
-        .layer() \
-        .mark('point') \
-        .map(encoding='x', field='weight', type='quantitative') \
-        .map(encoding='y', field='height', type='quantitative')
+        .representation() \
+            .mark('point') \
+            .map(encoding='x', field='weight', type='quantitative') \
+            .map(encoding='y', field='height', type='quantitative')
     assert chart.to_dict() == {
         "source": [{"name": "donors", "source": "./data/donors.csv"}],
-        "representation": [
-            {
-                "mark": "point",
-                "mapping": [
-                    {"encoding": "x", "field": "weight", "type": "quantitative"},
-                    {"encoding": "y", "field": "height", "type": "quantitative"},
-                ],
-            }
-        ],
+        "representation": {
+            "mark": "point",
+            "mapping": [
+                {"encoding": "x", "field": "weight", "type": "quantitative"},
+                {"encoding": "y", "field": "height", "type": "quantitative"},
+            ],
+        },
     }
 
 
@@ -54,7 +52,7 @@ def test_bar_chart():
         .groupby('sex') \
         .rollup({'count': Op.count()})
     
-    chart.layer().mark('bar') \
+    chart.representation().mark('bar') \
          .map(encoding='x', field='sex', type='nominal') \
          .map(encoding='y', field='count', type='quantitative')
 
@@ -66,13 +64,11 @@ def test_bar_chart():
             },
             {"rollup": {"count": {"op": "count"}}},
         ],
-        "representation": [
-            {
-                "mark": "bar",
-                "mapping": [
-                    {"encoding": "x", "field": "sex", "type": "nominal"},
-                    {"encoding": "y", "field": "count", "type": "quantitative"},
-                ],
-            }
-        ],
+        "representation": {
+            "mark": "bar",
+            "mapping": [
+                {"encoding": "x", "field": "sex", "type": "nominal"},
+                {"encoding": "y", "field": "count", "type": "quantitative"},
+            ],
+        },
     }
