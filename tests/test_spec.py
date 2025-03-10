@@ -72,3 +72,17 @@ def test_bar_chart():
             ],
         },
     }
+
+def test_table():
+    chart = Chart()
+    chart.source('donors', './data/donors.csv') \
+        .representation() \
+        .mark('row') \
+        .map(encoding='text', field='*', mark='text')
+    assert chart.to_dict() == {
+        "source": [{"name": "donors", "source": "./data/donors.csv"}],
+        "representation": {
+            "mark": "row",
+            "mapping": {"encoding": "text", "field": "*", "mark": "text"},
+        },
+    }
