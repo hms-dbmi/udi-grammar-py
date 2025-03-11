@@ -14,11 +14,16 @@ class Chart:
         return self
     
     def transformation(self):
+        if 'transformation' in self._spec:
+            return self._spec['transformation']
+        
         transformation = Transformation()
         self._spec['transformation'] = transformation
         return transformation
 
     def representation(self):
+        if 'representation' in self._spec:
+            return self._spec['representation']
         representation = Representation()
         self._spec['representation'] = representation
         return representation
@@ -138,6 +143,10 @@ class Layer:
     
 
 def transfer_kwargs(valid_args: Set[str], state: Dict, kwargs):
+    if 'in_name' in kwargs:
+        kwargs['in'] = kwargs.pop('in_name')
+    if 'out_name' in kwargs:
+        kwargs['out'] = kwargs.pop('out_name')
     return state.update({k: v for k, v in kwargs.items() if k in valid_args})
 
 def unwrap_single_element(lst):
