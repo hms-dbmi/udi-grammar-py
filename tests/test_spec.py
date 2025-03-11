@@ -671,6 +671,8 @@ def test_table_default():
         },
     }
 
+
+
 def test_table_2():
     chart = Chart()
     chart.source('donors', './data/donors.csv') \
@@ -704,6 +706,40 @@ def test_table_2():
             ],
         },
     }
+
+def test_table_repeated_encoding():
+    chart = Chart()
+    chart.source('donors', './data/donors.csv') \
+        .representation() \
+        .mark('row') \
+        .color(field='weight_value', mark='rect', type='quantitative') \
+        .color(field='height_value', mark='point', type='quantitative') \
+        .text(field='*', mark='text')
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": {
+            "mark": "row",
+            "mapping": [
+                {
+                    "mark": "rect",
+                    "field": "weight_value",
+                    "encoding": "color",
+                    "type": "quantitative",
+                },
+                {
+                    "mark": "point",
+                    "field": "height_value",
+                    "encoding": "color",
+                    "type": "quantitative",
+                },
+                {"mark": "text", "field": "*", "encoding": "text"},
+            ],
+        },
+    }
+
 
 def test_layered_table_example_1():
     chart = Chart()
