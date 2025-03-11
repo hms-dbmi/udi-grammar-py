@@ -44,7 +44,6 @@ def test_scatterplot():
         },
     }
 
-
 def test_bar_chart():
     chart = Chart()
     chart.source('donors', './data/donors.csv') \
@@ -95,7 +94,7 @@ def test_table_2():
         .map(encoding='color', field='weight_value', mark='rect', type='quantitative') \
         .map(encoding='size', field='height_value', mark='point', type='quantitative') \
         .map(encoding='text', field='*', mark='text')
-    
+
     assert chart.to_dict() == {
         "source": {
             "name": "donors",
@@ -117,6 +116,59 @@ def test_table_2():
                     "type": "quantitative",
                 },
                 {"mark": "text", "field": "*", "encoding": "text"},
+            ],
+        },
+    }
+
+def test_layered_table_example_1():
+    chart = Chart()
+    chart.source('donors', './data/donors.csv') \
+        .representation() \
+        .mark('row') \
+        .map(encoding='color', field='*', mark='rect') \
+        .mark('row') \
+        .map(encoding='color', field='*', mark='text', value='white')
+
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": [
+            {
+                "mark": "row",
+                "mapping": {"mark": "rect", "field": "*", "encoding": "color"},
+            },
+            {
+                "mark": "row",
+                "mapping": {
+                    "mark": "text",
+                    "field": "*",
+                    "value": "white",
+                    "encoding": "color",
+                },
+            },
+        ],
+    }
+
+def test_layered_table_example_2():
+    chart = Chart()
+    chart.source('donors', './data/donors.csv') \
+        .representation() \
+        .mark('row') \
+        .map(encoding='size', field='*', mark='point') \
+        .map(encoding='color', field='*', mark='point')
+
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": {
+            "mark": "row",
+            "mapping": [
+                {"mark": "point", "field": "*", "encoding": "size"},
+                {"mark": "point", "field": "*", "encoding": "color"},
             ],
         },
     }
