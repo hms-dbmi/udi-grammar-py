@@ -1,4 +1,4 @@
-from udi_grammar_py import Chart, Op
+from udi_grammar_py import Chart, Op, rolling
 from udi_grammar_py.spec import transfer_kwargs
 
 def test_chart_initialization():
@@ -602,7 +602,7 @@ def test_empirical_cdf():
         .transformation() \
         .orderby('bill_length_mm') \
         .derive({'total': 'count()'}) \
-        .derive({'percentile': {'rolling': {'expression': 'count() / d.total'}}})
+        .derive({'percentile': rolling('count() / d.total')})
     
     chart.representation().mark('line') \
          .x(field='bill_length_mm', type='quantitative') \
@@ -613,7 +613,7 @@ def test_empirical_cdf():
         "transformation": [
             {"orderby": "bill_length_mm"},
             {"derive": {"total": "count()"}},
-            {"derive": {"percentile": {"rolling": {"expression": "count() / d.total"}}}},
+            {"derive": {"percentile": rolling("count() / d.total")}},
         ],
         "representation": {
             "mark": "line",
@@ -631,7 +631,7 @@ def test_empirical_cdf_grouped():
         .orderby('bill_length_mm') \
         .groupby('species') \
         .derive({'total': 'count()'}) \
-        .derive({'percentile': {'rolling': {'expression': 'count() / d.total'}}})
+        .derive({'percentile': rolling('count() / d.total')})
     
     chart.representation().mark('line') \
          .x(field='bill_length_mm', type='quantitative') \
@@ -644,7 +644,7 @@ def test_empirical_cdf_grouped():
             {"orderby": "bill_length_mm"},
             {"groupby": "species"},
             {"derive": {"total": "count()"}},
-            {"derive": {"percentile": {"rolling": {"expression": "count() / d.total"}}}},
+            {"derive": {"percentile": rolling("count() / d.total")}},
         ],
         "representation": {
             "mark": "line",

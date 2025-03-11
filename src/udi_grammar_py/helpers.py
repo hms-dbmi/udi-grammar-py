@@ -22,3 +22,6 @@ class Op:
     @staticmethod
     def median(field):
         return {'op': 'median', 'field': field}
+    
+def rolling(expression):
+    return {'rolling': { "expression": expression}}
