@@ -16,10 +16,42 @@ class Chart:
     def transformation(self):
         if 'transformation' in self._spec:
             return self._spec['transformation']
-        
         transformation = Transformation()
         self._spec['transformation'] = transformation
         return transformation
+    
+    def groupby(self, field: Union[str, List[str]], **kwargs):
+        self.transformation().groupby(field, **kwargs)
+        return self
+
+    def binby(self, field: str, **kwargs):
+        self.transformation().binby(field, **kwargs)
+        return self
+    
+    def rollup(self, rollup_options: Union[str, List[str]], **kwargs):
+        self.transformation().rollup(rollup_options, **kwargs)
+
+        return self
+    
+    def orderby(self, field: Union[str, List[str]], **kwargs):
+        self.transformation().orderby(field, **kwargs)
+        return self
+    
+    def join(self, on: Union[str, List[str]], **kwargs):
+        self.transformation().join(on, **kwargs)
+        return self
+    
+    def kde(self, field: Union[str, List[str]], **kwargs):
+        self.transformation().kde(field, **kwargs)
+        return self
+    
+    def derive(self, derive_options: Union[str, List[str]], **kwargs):
+        self.transformation().derive(derive_options, **kwargs)
+        return self
+    
+    def filter(self, filter_expression: Union[str, Dict], **kwargs):
+        self.transformation().filter(filter_expression, **kwargs)
+        return self
 
     def representation(self):
         if 'representation' in self._spec:
@@ -27,6 +59,65 @@ class Chart:
         representation = Representation()
         self._spec['representation'] = representation
         return representation
+    
+    def mark(self, mark: str):
+        self.representation().mark(mark)
+        return self
+    
+    def map(self, encoding: str, **kwargs):
+        self.representation().map(encoding, **kwargs)
+        return self
+    
+    def x(self, **kwargs):
+        return self.map('x', **kwargs)
+    
+    def y(self, **kwargs):
+        return self.map('y', **kwargs)
+
+    def x2(self, **kwargs):
+        return self.map('x2', **kwargs)
+    
+    def y2(self, **kwargs):
+        return self.map('y2', **kwargs)
+
+    def xOffset(self, **kwargs):
+        return self.map('xOffset', **kwargs)
+
+    def yOffset(self, **kwargs):
+        return self.map('yOffset', **kwargs)
+
+    def color(self, **kwargs):
+        return self.map('color', **kwargs)
+
+    def size(self, **kwargs):
+        return self.map('size', **kwargs)
+
+    def shape(self, **kwargs):
+        return self.map('shape', **kwargs)
+
+    def theta(self, **kwargs):
+        return self.map('theta', **kwargs)
+
+    def theta2(self, **kwargs):
+        return self.map('theta2', **kwargs)
+
+    def radius(self, **kwargs):
+        return self.map('radius', **kwargs)
+
+    def radius2(self, **kwargs):
+        return self.map('radius2', **kwargs)
+
+    def text(self, **kwargs):
+        return self.map('text', **kwargs)
+
+    def stroke(self, **kwargs):
+        return self.map('stroke', **kwargs)
+
+    def opacity(self, **kwargs):
+        return self.map('opacity', **kwargs)
+
+    def strokeWidth(self, **kwargs):
+        return self.map('strokeWidth', **kwargs)
 
     def to_json(self, pretty=False):
         # clone spec

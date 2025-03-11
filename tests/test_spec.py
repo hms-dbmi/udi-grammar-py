@@ -64,11 +64,9 @@ def test_transfer_kwargs_out_name():
 def test_total_record_count():
     chart = Chart()
     chart.source('donors', './data/example_donors.csv') \
-        .transformation() \
-        .rollup({'count': Op.count()})
-    
-    chart.representation().mark('bar') \
-         .x(field='count', type='quantitative')
+        .rollup({'count': Op.count()}) \
+        .mark('bar') \
+        .x(field='count', type='quantitative')
 
     assert chart.to_dict() == {
         "source": {"name": "donors", "source": "./data/example_donors.csv"},
@@ -84,13 +82,11 @@ def test_total_record_count():
 def test_count_by_category():
     chart = Chart()
     chart.source('donors', './data/example_donors.csv') \
-        .transformation() \
         .groupby('sex') \
-        .rollup({'count': Op.count()})
-    
-    chart.representation().mark('bar') \
-         .x(field='sex', type='nominal') \
-         .y(field='count', type='quantitative')
+        .rollup({'count': Op.count()}) \
+        .mark('bar') \
+        .x(field='sex', type='nominal') \
+        .y(field='count', type='quantitative')
 
     assert chart.to_dict() == {
         "source": {"name": "donors", "source": "./data/example_donors.csv"},
@@ -110,13 +106,11 @@ def test_count_by_category():
 def test_aggregate_by_category():
     chart = Chart()
     chart.source('donors', './data/example_donors.csv') \
-        .transformation() \
         .groupby('sex') \
-        .rollup({'average weight': Op.mean('weight')})
-    
-    chart.representation().mark('bar') \
-         .x(field='sex', type='nominal') \
-         .y(field='average weight', type='quantitative')
+        .rollup({'average weight': Op.mean('weight')}) \
+        .mark('bar') \
+        .x(field='sex', type='nominal') \
+        .y(field='average weight', type='quantitative')
 
     assert chart.to_dict() == {
         "source": {"name": "donors", "source": "./data/example_donors.csv"},
@@ -137,14 +131,12 @@ def test_combining_data_sources():
     chart = Chart()
     chart.source('donors', './data/example_donors.csv') \
         .source('samples', './data/example_samples.csv') \
-        .transformation() \
         .join(on=['id', 'donor_id'], in_name=['donors', 'samples'], out_name='donor_sample_combined') \
         .groupby('sex') \
-        .rollup({'sample count': Op.count()})
-    
-    chart.representation().mark('bar') \
-         .x(field='sex', type='nominal') \
-         .y(field='sample count', type='quantitative')
+        .rollup({'sample count': Op.count()}) \
+        .mark('bar') \
+        .x(field='sex', type='nominal') \
+        .y(field='sample count', type='quantitative')
 
     assert chart.to_dict() == {
         "source": [
@@ -172,13 +164,11 @@ def test_combining_data_sources():
 def test_single_stacked_bar_chart():
     chart = Chart()
     chart.source('samples', './data/example_samples.csv') \
-        .transformation() \
         .groupby('organ') \
-        .rollup({'count': Op.count()})
-    
-    chart.representation().mark('bar') \
-         .x(field='count', type='quantitative') \
-         .color(field='organ', type='nominal')
+        .rollup({'count': Op.count()}) \
+        .representation().mark('bar') \
+        .x(field='count', type='quantitative') \
+        .color(field='organ', type='nominal')
 
     assert chart.to_dict() == {
         "source": {"name": "samples", "source": "./data/example_samples.csv"},
@@ -198,13 +188,11 @@ def test_single_stacked_bar_chart():
 def test_single_stacked_bar_chart_relative():
     chart = Chart()
     chart.source('samples', './data/example_samples.csv') \
-        .transformation() \
         .groupby('organ') \
-        .rollup({'frequency': Op.frequency()})
-    
-    chart.representation().mark('bar') \
-         .x(field='frequency', type='quantitative') \
-         .color(field='organ', type='nominal')
+        .rollup({'frequency': Op.frequency()}) \
+        .mark('bar') \
+            .x(field='frequency', type='quantitative') \
+            .color(field='organ', type='nominal')
 
     assert chart.to_dict() == {
         "source": {"name": "samples", "source": "./data/example_samples.csv"},
@@ -224,14 +212,12 @@ def test_single_stacked_bar_chart_relative():
 def test_multiple_stacked_bar_charts():
     chart = Chart()
     chart.source('samples', './data/example_samples.csv') \
-        .transformation() \
         .groupby(['organ', 'organ_condition']) \
-        .rollup({'count': Op.count()})
-    
-    chart.representation().mark('bar') \
-         .x(field='count', type='quantitative') \
-         .y(field='organ', type='nominal') \
-         .color(field='organ_condition', type='nominal')
+        .rollup({'count': Op.count()}) \
+        .mark('bar') \
+            .x(field='count', type='quantitative') \
+            .y(field='organ', type='nominal') \
+            .color(field='organ_condition', type='nominal')
 
     assert chart.to_dict() == {
         "source": {"name": "samples", "source": "./data/example_samples.csv"},
@@ -252,18 +238,16 @@ def test_multiple_stacked_bar_charts():
 def test_multiple_stacked_bar_charts_relative():
     chart = Chart()
     chart.source('samples', './data/example_samples.csv') \
-        .transformation() \
         .groupby('organ', out_name='groupCounts') \
         .rollup({'organ_count': Op.count()}) \
         .groupby(['organ', 'organ_condition']) \
         .rollup({'organ_and_condition_count': Op.count()}) \
         .join(on='organ', in_name=['samples', 'groupCounts'], out_name='datasets') \
-        .derive({'frequency': 'd.organ_and_condition_count / d.organ_count'})
-    
-    chart.representation().mark('bar') \
-         .x(field='frequency', type='quantitative') \
-         .y(field='organ', type='nominal') \
-         .color(field='organ_condition', type='nominal')
+        .derive({'frequency': 'd.organ_and_condition_count / d.organ_count'}) \
+        .mark('bar') \
+            .x(field='frequency', type='quantitative') \
+            .y(field='organ', type='nominal') \
+            .color(field='organ_condition', type='nominal')
 
     assert chart.to_dict() == {
         "source": {"name": "samples", "source": "./data/example_samples.csv"},
@@ -442,14 +426,12 @@ def test_heatmap_of_categories():
 def test_heatmap_with_aggregation():
     chart = Chart()
     chart.source('samples', './data/example_samples.csv') \
-        .transformation() \
         .groupby(['organ', 'organ_condition']) \
-        .rollup({'average_weight': Op.mean('weight')})
-    
-    chart.representation().mark('rect') \
-         .x(field='organ_condition', type='nominal') \
-         .y(field='organ', type='nominal') \
-         .color(field='average_weight', type='quantitative')
+        .rollup({'average_weight': Op.mean('weight')}) \
+        .mark('rect') \
+        .x(field='organ_condition', type='nominal') \
+        .y(field='organ', type='nominal') \
+        .color(field='average_weight', type='quantitative')
 
     assert chart.to_dict() == {
         "source": {"name": "samples", "source": "./data/example_samples.csv"},
@@ -475,10 +457,10 @@ def test_heatmap_with_multiple_aggregations():
         .rollup({'average_weight': Op.mean('weight'), 'count': Op.count()})
     
     chart.representation().mark('rect') \
-         .x(field='organ_condition', type='nominal') \
-         .y(field='organ', type='nominal') \
-         .color(field='average_weight', type='quantitative') \
-         .size(field='count', type='quantitative')
+        .x(field='organ_condition', type='nominal') \
+        .y(field='organ', type='nominal') \
+        .color(field='average_weight', type='quantitative') \
+        .size(field='count', type='quantitative')
 
     assert chart.to_dict() == {
         "source": {"name": "samples", "source": "./data/example_samples.csv"},
@@ -529,13 +511,13 @@ def test_histogram():
 
 def test_kde_density_plot():
     chart = Chart()
-    chart.source('penguins', './data/penguins.csv') \
-        .transformation() \
-        .kde(field='bill_length_mm', samples=100, output={'sample': 'bill_length_mm', 'density': 'density'})
-    
-    chart.representation().mark('area') \
-         .x(field='bill_length_mm', type='quantitative') \
-         .y(field='density', type='quantitative')
+    chart.source("penguins", "./data/penguins.csv").kde(
+        field="bill_length_mm",
+        samples=100,
+        output={"sample": "bill_length_mm", "density": "density"},
+    ).mark("area") \
+    .x(field="bill_length_mm", type="quantitative") \
+    .y(field="density", type="quantitative")
 
     assert chart.to_dict() == {
         "source": {"name": "penguins", "source": "./data/penguins.csv"},
@@ -554,20 +536,20 @@ def test_kde_density_plot():
 def test_kde_density_plot_grouped():
     chart = Chart()
     chart.source('penguins', './data/penguins.csv') \
-        .transformation() \
         .groupby('species') \
-        .kde(field='bill_length_mm', samples=100, output={'sample': 'bill_length_mm', 'density': 'density'})
-    
-    chart.representation().mark('area') \
-         .x(field='bill_length_mm', type='quantitative') \
-         .y(field='density', type='quantitative') \
-         .color(field='species', type='nominal') \
-         .opacity(value=0.25)
-    
-    chart.representation().mark('line') \
-         .x(field='bill_length_mm', type='quantitative') \
-         .y(field='density', type='quantitative') \
-         .color(field='species', type='nominal')
+        .kde(field='bill_length_mm', samples=100, output={
+            'sample': 'bill_length_mm',
+            'density': 'density'
+        }) \
+        .mark('area') \
+            .x(field='bill_length_mm', type='quantitative') \
+            .y(field='density', type='quantitative') \
+            .color(field='species', type='nominal') \
+            .opacity(value=0.25) \
+        .mark('line') \
+            .x(field='bill_length_mm', type='quantitative') \
+            .y(field='density', type='quantitative') \
+            .color(field='species', type='nominal')
 
     assert chart.to_dict() == {
         "source": {"name": "penguins", "source": "./data/penguins.csv"},
@@ -671,12 +653,9 @@ def test_table_default():
         },
     }
 
-
-
 def test_table_2():
     chart = Chart()
     chart.source('donors', './data/donors.csv') \
-        .representation() \
         .mark('row') \
         .color(field='weight_value', mark='rect', type='quantitative') \
         .size(field='height_value', mark='point', type='quantitative') \
@@ -744,7 +723,6 @@ def test_table_repeated_encoding():
 def test_layered_table_example_1():
     chart = Chart()
     chart.source('donors', './data/donors.csv') \
-        .representation() \
         .mark('row') \
         .color(field='*', mark='rect') \
         .mark('row') \
