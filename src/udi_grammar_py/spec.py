@@ -24,13 +24,17 @@ class Chart:
         return representation
 
     def to_json(self, pretty=False):
+        # clone spec
+        clone = self._spec.copy()
+        if 'source' in clone:
+            clone['source'] = unwrap_single_element(clone.get('source'))
+
         # handle inner object serialization
         def custom_serialization(obj):
             if isinstance(obj, (Representation, Transformation, Layer)):
                 return obj.__json__()
             raise TypeError(f"Type {type(obj)} not serializable")
-
-        return json.dumps(self._spec, default=custom_serialization, indent=PRETTY_INDENT if pretty else None)
+        return json.dumps(clone, default=custom_serialization, indent=PRETTY_INDENT if pretty else None)
     
     def to_dict(self):
         return json.loads(self.to_json())

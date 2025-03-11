@@ -17,13 +17,13 @@ def test_chart_add_multiple_sources():
 def test_chart_to_json():
     chart = Chart()
     chart.source('test_name', 'test_source')
-    expected_json = '{"source": [{"name": "test_name", "source": "test_source"}]}'
+    expected_json = '{"source": {"name": "test_name", "source": "test_source"}}'
     assert chart.to_json() == expected_json
 
 def test_chart_to_dict():
     chart = Chart()
     chart.source('test_name', 'test_source')
-    expected_dict = {'source': [{'name': 'test_name', 'source': 'test_source'}]}
+    expected_dict = {'source': {'name': 'test_name', 'source': 'test_source'}}
     assert chart.to_dict() == expected_dict
 
 def test_scatterplot():
@@ -34,7 +34,7 @@ def test_scatterplot():
             .map(encoding='x', field='weight', type='quantitative') \
             .map(encoding='y', field='height', type='quantitative')
     assert chart.to_dict() == {
-        "source": [{"name": "donors", "source": "./data/donors.csv"}],
+        "source": {"name": "donors", "source": "./data/donors.csv"},
         "representation": {
             "mark": "point",
             "mapping": [
@@ -57,7 +57,7 @@ def test_bar_chart():
          .map(encoding='y', field='count', type='quantitative')
 
     assert chart.to_dict() == {
-        "source": [{"name": "donors", "source": "./data/donors.csv"}],
+        "source": {"name": "donors", "source": "./data/donors.csv"},
         "transformation": [
             {
                 "groupby": "sex",
@@ -73,16 +73,50 @@ def test_bar_chart():
         },
     }
 
-def test_table():
+def test_table_default():
     chart = Chart()
     chart.source('donors', './data/donors.csv') \
         .representation() \
         .mark('row') \
         .map(encoding='text', field='*', mark='text')
     assert chart.to_dict() == {
-        "source": [{"name": "donors", "source": "./data/donors.csv"}],
+        "source": {"name": "donors", "source": "./data/donors.csv"},
         "representation": {
             "mark": "row",
             "mapping": {"encoding": "text", "field": "*", "mark": "text"},
+        },
+    }
+
+def test_table_2():
+    chart = Chart()
+    chart.source('donors', './data/donors.csv') \
+        .representation() \
+        .mark('row') \
+        .map(encoding='color', field='weight_value', mark='rect', type='quantitative') \
+        .map(encoding='size', field='height_value', mark='point', type='quantitative') \
+        .map(encoding='text', field='*', mark='text')
+    
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": {
+            "mark": "row",
+            "mapping": [
+                {
+                    "mark": "rect",
+                    "field": "weight_value",
+                    "encoding": "color",
+                    "type": "quantitative",
+                },
+                {
+                    "mark": "point",
+                    "field": "height_value",
+                    "encoding": "size",
+                    "type": "quantitative",
+                },
+                {"mark": "text", "field": "*", "encoding": "text"},
+            ],
         },
     }
