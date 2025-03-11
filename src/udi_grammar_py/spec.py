@@ -118,6 +118,57 @@ class Representation:
         self._current_layer.map(encoding, **kwargs)
         return self
     
+    def x(self, **kwargs):
+        return self.map('x', **kwargs)
+
+    def y(self, **kwargs):
+        return self.map('y', **kwargs)
+
+    def x2(self, **kwargs):
+        return self.map('x2', **kwargs)
+    
+    def y2(self, **kwargs):
+        return self.map('y2', **kwargs)
+
+    def xOffset(self, **kwargs):
+        return self.map('xOffset', **kwargs)
+
+    def yOffset(self, **kwargs):
+        return self.map('yOffset', **kwargs)
+
+    def color(self, **kwargs):
+        return self.map('color', **kwargs)
+
+    def size(self, **kwargs):
+        return self.map('size', **kwargs)
+
+    def shape(self, **kwargs):
+        return self.map('shape', **kwargs)
+
+    def theta(self, **kwargs):
+        return self.map('theta', **kwargs)
+
+    def theta2(self, **kwargs):
+        return self.map('theta2', **kwargs)
+
+    def radius(self, **kwargs):
+        return self.map('radius', **kwargs)
+
+    def radius2(self, **kwargs):
+        return self.map('radius2', **kwargs)
+
+    def text(self, **kwargs):
+        return self.map('text', **kwargs)
+
+    def stroke(self, **kwargs):
+        return self.map('stroke', **kwargs)
+
+    def opacity(self, **kwargs):
+        return self.map('opacity', **kwargs)
+
+    def strokeWidth(self, **kwargs):
+        return self.map('strokeWidth', **kwargs)
+    
     def __json__(self):
         return unwrap_single_element(self._state)
 
