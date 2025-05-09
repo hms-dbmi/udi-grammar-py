@@ -1,6 +1,6 @@
 [project]
 name = "udi-grammar-py"
-version = "0.2.1"
+version = "0.2.2"
 description = "A python library for creating udi-grammar specifications"
 readme = "README.md"
 authors = [
