@@ -283,7 +283,16 @@ class Layer:
     def map(self, encoding: str, **kwargs):
         new_mapping = {"encoding": encoding}
         transfer_kwargs(
-            {"field", "type", "value", "mark", "column", "domain", "range"},
+            {
+                "field",
+                "type",
+                "value",
+                "mark",
+                "column",
+                "domain",
+                "range",
+                "omitLegend",
+            },
             new_mapping,
             kwargs,
         )
