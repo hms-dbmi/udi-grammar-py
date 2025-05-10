@@ -815,3 +815,26 @@ def test_layered_table_example_2():
             ],
         },
     }
+
+
+def test_table_with_column():
+    chart = Chart()
+    chart.source("donors", "./data/donors.csv").representation().mark("row").size(
+        field="weight", mark="point", column="Weight"
+    )
+
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": {
+            "mark": "row",
+            "mapping": {
+                "column": "Weight",
+                "mark": "point",
+                "field": "weight",
+                "encoding": "size",
+            },
+        },
+    }
