@@ -292,6 +292,7 @@ class Layer:
                 "domain",
                 "range",
                 "omitLegend",
+                "orderby",
             },
             new_mapping,
             kwargs,
