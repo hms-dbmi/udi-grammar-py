@@ -1,7 +1,101 @@
 import json
 from typing import Union, List, Dict, Set
+import anywidget
+import traitlets
 
 PRETTY_INDENT = 4
+
+class UDIWidget(anywidget.AnyWidget):
+    _esm = """
+    console.log("top of UDIWidget.js");
+
+    const vueScript = document.createElement('script');
+    vueScript.src = "https://unpkg.com/vue@3.4.15/dist/vue.global.prod.js";
+    document.head.appendChild(vueScript);
+
+    const loadEmbed = () =>
+      new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = "http://localhost:3000/dist/embed.umd.js";
+        script.onload = () => {
+          if (window.UDIEmbed?.embed) {
+            resolve(window.UDIEmbed.embed);
+          } else {
+            reject("embed not found on window");
+          }
+        };
+        script.onerror = () => reject("Failed to load UDIEmbed");
+        document.head.appendChild(script);
+      });
+
+    let embedPromise = new Promise((resolve, reject) => {
+      if (window.Vue) {
+        loadEmbed().then(resolve).catch(reject);
+      } else {
+        vueScript.onload = () => {
+          loadEmbed().then(resolve).catch(reject);
+        };
+      }
+    });
+
+    export default {
+      async render({ model, el }) {
+        const embed = await embedPromise;
+        const spec = JSON.parse(model.get('spec_json'));
+        embed(el, spec);
+      }
+    };
+    """
+    spec_json = traitlets.Unicode().tag(sync=True)
+
+
+    # _esm = """
+    # export default {
+    #   render({ model, el }) {
+    #     el.innerHTML = "<h2 style='color: green'>DummyWidget RENDAHED</h2>";
+    #   }
+    # }
+    # """
+
+    # _esm = """
+    # console.log("top of UDIWidget.js");
+    # import { embed } from "http://localhost:3000/dist/embed.umd.js";
+    # console.log("embed", embed);
+
+    # export default {
+    #     render({ model, el }) {
+    #         const spec = JSON.parse(model.get("spec_json"));
+
+    #         console.log("UDIWidget.render: spec", spec);
+    #         console.log("model", model);
+    #         console.log("UDIWidget.render: el", el);
+    #         console.log("UDIWidget.render: embed", embed);
+
+    #         embed(el, spec);
+    #     }
+    # }
+    # """
+
+    # _esm = """
+    # export default {
+    #   async render({ model, el }) {
+    #     console.log("UDIWidget.render", model, el);
+    #     console.log("checking window.UDIEmbed", window.UDIEmbed);
+    #     // Ensure embed.umd.js is loaded globally first
+    #     if (!window.UDIEmbed) {
+    #       console.log('it is not loaded, loading embed.umd.js');
+    #       await import("http://localhost:3000/dist/embed.umd.js");
+    #     }
+
+    #     const spec = JSON.parse(model.get("spec_json"));
+    #     console.log("UDIWidget.render: spec", spec);
+    #     console.log("UDIWidget.render: el", el);
+    #     console.log("UDIWidget.render: window.UDIEmbed", window.UDIEmbed);
+    #     window.UDIEmbed.embed(el, spec);
+    #   }
+    # }
+    # """
+    # spec_json = traitlets.Unicode().tag(sync=True)
 
 
 class Chart:

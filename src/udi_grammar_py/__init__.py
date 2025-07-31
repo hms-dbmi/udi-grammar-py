@@ -1,2 +1,2 @@
-from .spec import Chart
+from .spec import Chart, UDIWidget
 from .helpers import Op, rolling
