@@ -1,4 +1,7 @@
 import json
+import os
+import pandas as pd
+import urllib.parse
 from typing import Union, List, Dict, Set
 import anywidget
 import traitlets
@@ -104,6 +107,16 @@ class Chart:
 
     def source(self, name, source):
         self._spec.setdefault("source", [])
+
+        # Auto-convert local .csv path to data URI
+        if isinstance(source, str) and source.endswith(".csv") and os.path.exists(source):
+            try:
+                csv_str = pd.read_csv(source).to_csv(index=False)
+                data_uri = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_str)
+                source = data_uri
+            except Exception as e:
+                print(f"⚠️ Failed to convert CSV to data URI: {e}")
+
         self._spec["source"].append({"name": name, "source": source})
         return self
 
