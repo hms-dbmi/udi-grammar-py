@@ -12,33 +12,33 @@ class UDIWidget(anywidget.AnyWidget):
     _esm = """
     console.log("top of UDIWidget.js");
 
-    const vueScript = document.createElement('script');
-    vueScript.src = "https://unpkg.com/vue@3.4.15/dist/vue.global.prod.js";
-    document.head.appendChild(vueScript);
+    const loadScript = (src) => {
+      return new Promise((resolve, reject) => {
+        if (document.querySelector(`script[src="${src}"]`)) {
+          resolve();
+          return;
+        }
 
-    const loadEmbed = () =>
-      new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = "http://localhost:3000/dist/embed.umd.js";
-        script.onload = () => {
-          if (window.UDIEmbed?.embed) {
-            resolve(window.UDIEmbed.embed);
-          } else {
-            reject("embed not found on window");
-          }
-        };
-        script.onerror = () => reject("Failed to load UDIEmbed");
+        const script = document.createElement("script");
+        script.src = src;
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error(`Failed to load ${src}`));
         document.head.appendChild(script);
       });
+    };
 
-    let embedPromise = new Promise((resolve, reject) => {
-      if (window.Vue) {
-        loadEmbed().then(resolve).catch(reject);
-      } else {
-        vueScript.onload = () => {
-          loadEmbed().then(resolve).catch(reject);
-        };
+    const embedPromise = Promise.all([
+      loadScript("https://unpkg.com/vue@3.4.18/dist/vue.global.js"),
+      loadScript("https://unpkg.com/pinia@3.0.1/dist/pinia.iife.prod.js")
+    ])
+    .then(() => {
+      return loadScript("http://localhost:3000/dist/embed.umd.js");
+    })
+    .then(() => {
+      if (window.UDIEmbed?.embed) {
+        return window.UDIEmbed.embed;
       }
+      throw new Error("embed not found on window.UDIEmbed");
     });
 
     export default {
@@ -52,55 +52,6 @@ class UDIWidget(anywidget.AnyWidget):
     spec_json = traitlets.Unicode().tag(sync=True)
 
 
-    # _esm = """
-    # export default {
-    #   render({ model, el }) {
-    #     el.innerHTML = "<h2 style='color: green'>DummyWidget RENDAHED</h2>";
-    #   }
-    # }
-    # """
-
-    # _esm = """
-    # console.log("top of UDIWidget.js");
-    # import { embed } from "http://localhost:3000/dist/embed.umd.js";
-    # console.log("embed", embed);
-
-    # export default {
-    #     render({ model, el }) {
-    #         const spec = JSON.parse(model.get("spec_json"));
-
-    #         console.log("UDIWidget.render: spec", spec);
-    #         console.log("model", model);
-    #         console.log("UDIWidget.render: el", el);
-    #         console.log("UDIWidget.render: embed", embed);
-
-    #         embed(el, spec);
-    #     }
-    # }
-    # """
-
-    # _esm = """
-    # export default {
-    #   async render({ model, el }) {
-    #     console.log("UDIWidget.render", model, el);
-    #     console.log("checking window.UDIEmbed", window.UDIEmbed);
-    #     // Ensure embed.umd.js is loaded globally first
-    #     if (!window.UDIEmbed) {
-    #       console.log('it is not loaded, loading embed.umd.js');
-    #       await import("http://localhost:3000/dist/embed.umd.js");
-    #     }
-
-    #     const spec = JSON.parse(model.get("spec_json"));
-    #     console.log("UDIWidget.render: spec", spec);
-    #     console.log("UDIWidget.render: el", el);
-    #     console.log("UDIWidget.render: window.UDIEmbed", window.UDIEmbed);
-    #     window.UDIEmbed.embed(el, spec);
-    #   }
-    # }
-    # """
-    # spec_json = traitlets.Unicode().tag(sync=True)
-
-
 class Chart:
     def __init__(self):
         self._spec = {}
@@ -108,14 +59,34 @@ class Chart:
     def source(self, name, source):
         self._spec.setdefault("source", [])
 
-        # Auto-convert local .csv path to data URI
-        if isinstance(source, str) and source.endswith(".csv") and os.path.exists(source):
+        if isinstance(source, str) and os.path.exists(source):
             try:
-                csv_str = pd.read_csv(source).to_csv(index=False)
-                data_uri = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_str)
+                ext = os.path.splitext(source)[1].lower()
+
+                if ext == ".csv":
+                    df = pd.read_csv(source)
+                    text = df.to_csv(index=False)
+                    mime = "text/csv"
+
+                elif ext == ".tsv":
+                    df = pd.read_csv(source, sep="\t")
+                    text = df.to_csv(sep="\t", index=False)
+                    mime = "text/tab-separated-values"
+
+                elif ext == ".json":
+                    with open(source, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    text = json.dumps(data)
+                    mime = "application/json"
+
+                else:
+                    raise ValueError(f"Unsupported file extension: {ext}")
+
+                data_uri = f"data:{mime};charset=utf-8,{urllib.parse.quote(text)}"
                 source = data_uri
+
             except Exception as e:
-                print(f"⚠️ Failed to convert CSV to data URI: {e}")
+                print(f"⚠️ Failed to embed source file '{source}': {e}")
 
         self._spec["source"].append({"name": name, "source": source})
         return self
