@@ -838,3 +838,67 @@ def test_table_with_column():
             },
         },
     }
+
+
+def test_title():
+    chart = Chart()
+    chart.source("donors", "./data/donors.csv").mark("rect").x(
+        field="start", type="quantitative", title="Weight (kg)"
+    ).y(field="count", type="quantitative", title="Number of Donors")
+
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": {
+            "mark": "rect",
+            "mapping": [
+                {
+                    "encoding": "x",
+                    "field": "start",
+                    "type": "quantitative",
+                    "title": "Weight (kg)",
+                },
+                {
+                    "encoding": "y",
+                    "field": "count",
+                    "type": "quantitative",
+                    "title": "Number of Donors",
+                },
+            ],
+        },
+    }
+
+
+def test_domain_when_filtered():
+    chart = Chart()
+    chart.source("donors", "./data/donors.csv").mark("point").x(
+        field="weight_value", type="quantitative", domainWhenFiltered="filtered"
+    ).y(
+        field="height_value", type="quantitative", domainWhenFiltered="filtered"
+    )
+
+    assert chart.to_dict() == {
+        "source": {
+            "name": "donors",
+            "source": "./data/donors.csv",
+        },
+        "representation": {
+            "mark": "point",
+            "mapping": [
+                {
+                    "encoding": "x",
+                    "field": "weight_value",
+                    "type": "quantitative",
+                    "domainWhenFiltered": "filtered",
+                },
+                {
+                    "encoding": "y",
+                    "field": "height_value",
+                    "type": "quantitative",
+                    "domainWhenFiltered": "filtered",
+                },
+            ],
+        },
+    }
