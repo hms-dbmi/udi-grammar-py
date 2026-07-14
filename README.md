@@ -1,4 +1,8 @@
-# udi-grammar-py
+> [!warning]
+> ## 🚚 This repository has moved!
+> Development now happens in **[udi-yac](https://github.com/hms-dbmi/udi-yac)** — specifically under [`packages/grammar-py`](https://github.com/hms-dbmi/udi-yac/tree/main/packages/grammar-py).
+>
+> This repo is archived and no longer maintained. Please open issues and PRs in the new location.# udi-grammar-py
 
 Python code for generating [Universal Discovery Interface](https://github.com/hms-dbmi/udi-grammar) (UDI) specifications.
 
